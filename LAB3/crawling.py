@@ -1,5 +1,6 @@
 import bs4
 import requests
+import json
 
 arr = []
 
@@ -23,6 +24,9 @@ def crawling(url, maxNumPage=None, startPage=1):
         
     else:
         print(f"Failed to retrieve the web page. Status code: {response.status_code}")
+    
+    with open("url.json", "w", encoding="utf-8") as json_file:
+        json.dump(arr, json_file, indent=4, ensure_ascii=False)
     
     return arr
         
