@@ -1,5 +1,4 @@
 import socket
-import requests
 from bs4 import BeautifulSoup
 import json
 
@@ -7,12 +6,20 @@ HOST = '127.0.0.1'
 PORT = 8080
 
 def send_request(path):
-    url = f'http://{HOST}:{PORT}{path}'
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.text
-    else:
-        return None
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect((HOST, PORT))
+    request = f'GET {path} HTTP/1.1\r\nHost: {HOST}:{PORT}\r\n'
+    client_socket.send(request.encode('utf-8'))
+
+    response = b''
+    while True:
+        data = client_socket.recv(1024)
+        if not data:
+            break
+        response += data
+
+    client_socket.close()
+    return response.decode('utf-8')
 
 def parse_static_page(page_content):
     soup = BeautifulSoup(page_content, 'html.parser')
