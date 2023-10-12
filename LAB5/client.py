@@ -13,6 +13,7 @@ def connect():
     global CLIENT_SOCKET
     CLIENT_SOCKET = create_client_socket()
     print(f"Connected to {HOST}:{PORT}")
+    
 
 def create_client_socket():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
