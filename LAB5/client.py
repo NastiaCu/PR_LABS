@@ -8,7 +8,6 @@ HOST = '127.0.0.1'
 PORT = 12345
 MEDIA_FOLDER = 'client_media'
 CLIENT_SOCKET = None
-CHUNK = 1024
 
 def connect():
     global CLIENT_SOCKET
@@ -91,7 +90,7 @@ def download_file(client_socket, data, name):
         file_size = data['payload']['file_size']
         index = 0
         while index < file_size:
-            chunk = client_socket.recv(CHUNK)
+            chunk = client_socket.recv(1024)
             received_file.write(chunk)
             index += len(chunk)
 

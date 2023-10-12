@@ -8,7 +8,6 @@ PORT = 12345
 MEDIA_FOLDER = 'server_media'
 CLIENTS = {}
 ROOMS = {}
-CHUNK = 1024
 
 def start_server():
     server_socket = create_server_socket()
@@ -143,10 +142,10 @@ def handle_download(client_socket, data):
         server_data = json.dumps(stream_message)
         client_socket.sendall(bytes(server_data, encoding='utf-8'))
 
-        if file_size > CHUNK:
+        if file_size > 1024:
             with open(file_path, 'rb') as file:
                 while True:
-                    chunk = file.read(CHUNK)
+                    chunk = file.read(1024)
                     if not chunk:
                         break
                     client_socket.sendall(chunk)
@@ -163,9 +162,6 @@ def handle_download(client_socket, data):
         }
         server_data = json.dumps(notification_message)
         client_socket.sendall(bytes(server_data, encoding='utf-8'))
-
-
-
 
 def handle_message_broadcast(client_socket, data):
     room = data['payload']['room']
