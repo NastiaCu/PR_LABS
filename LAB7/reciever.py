@@ -4,14 +4,10 @@ import requests
 from threading import Thread, Lock
 from tinydb import TinyDB
 
-
 db = TinyDB('db.json', indent=4, ensure_ascii=False)
 lock = Lock()
-processed_urls = set()
 
-def callback(ch, method, properties, body, thread_num):
-    url = body.decode()
-
+def scraper(url):
     response = requests.get(url)
 
     if response.status_code == 200:
@@ -36,19 +32,25 @@ def callback(ch, method, properties, body, thread_num):
         else:
             description = "Description not found"
 
-        item_data = {
+        return {
             "title": title,
             "price": price + currency,
             "description": description,
         }
 
-        with lock:
-            db.insert(item_data)
-
-        print(f"Consumer {thread_num} processing URL: {url}")
-
     else:
         print(f"Failed to retrieve the web page at {url}. Status code: {response.status_code}")
+        return None
+
+def callback(ch, method, properties, body, thread_num):
+    url = body.decode()
+    scraped_data = scraper(url)
+
+    if scraped_data:
+        with lock:
+            db.insert(scraped_data)
+
+        print(f"Consumer {thread_num} processing URL: {url}")
 
 def process_data_from_queue(thread_num):
     connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
